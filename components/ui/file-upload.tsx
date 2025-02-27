@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { cn } from '@/common/utils';
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';

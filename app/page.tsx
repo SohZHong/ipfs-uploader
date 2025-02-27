@@ -20,7 +20,7 @@ export default function Home() {
       });
       console.log(response);
       const uploadUrl = response.data.uploadUrl;
-      const cid = response.data.cid;
+      // const cid = response.data.cid;
       // Upload the file to the presigned URL
       await axios.put(uploadUrl, file, {
         headers: { 'Content-Type': file.type },
