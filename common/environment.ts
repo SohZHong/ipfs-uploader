@@ -7,7 +7,7 @@ if (!PINATA_JWT || !PINATA_GATEWAY) {
   throw new Error(
     `Missing required environment variables: ${
       !PINATA_JWT ? 'PINATA_JWT, ' : ''
-    } ${!PINATA_GATEWAY ? 'PINATA_API_SECRET, ' : ''}`
+    } ${!PINATA_GATEWAY ? 'PINATA_GATEWAY, ' : ''}`
   );
 }
 
