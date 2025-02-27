@@ -13,19 +13,15 @@ export default function Home() {
 
   const uploadFile = async (file: File) => {
     try {
-      // Request an upload URL from the API
-      const response = await axios.post('/api/upload', {
-        fileName: file.name,
-        filetype: file.type,
-      });
-      console.log(response);
-      const uploadUrl = response.data.uploadUrl;
-      // const cid = response.data.cid;
-      // Upload the file to the presigned URL
-      await axios.put(uploadUrl, file, {
-        headers: { 'Content-Type': file.type },
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Send FormData
+      const response = await axios.post('/api/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      console.log(response.data);
       console.log('File uploaded successfully!');
     } catch (error) {
       console.error('File upload failed:', error);
@@ -39,28 +35,6 @@ export default function Home() {
 
     await uploadFile(files[0]);
   };
-
-  // async function uploadFile(file) {
-  //   const response = await fetch('/api/upload', {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({
-  //       filename: file.name,
-  //       filetype: file.type,
-  //     }),
-  //   });
-
-  //   const { uploadUrl } = await response.json();
-
-  //   // Upload the file to Filebase via the signed URL
-  //   await fetch(uploadUrl, {
-  //     method: 'PUT',
-  //     body: file,
-  //     headers: { 'Content-Type': file.type },
-  //   });
-
-  //   console.log('File uploaded successfully!');
-  // }
 
   return (
     <div className='grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20'>

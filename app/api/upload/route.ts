@@ -1,55 +1,31 @@
+import { pinata } from '@/common/environment';
 import { NextRequest } from 'next/server';
-import AWS from 'aws-sdk';
-import {
-  FILEBASE_ACCESS_KEY,
-  FILEBASE_SECRET_KEY,
-  FILEBASE_BUCKET_NAME,
-} from '@/common/environment';
-
-// Configure Filebase (S3-compatible storage)
-const s3 = new AWS.S3({
-  apiVersion: '2006-03-01',
-  accessKeyId: FILEBASE_ACCESS_KEY,
-  secretAccessKey: FILEBASE_SECRET_KEY,
-  endpoint: 'https://s3.filebase.com',
-  signatureVersion: 'v4',
-  region: 'us-east-1',
-  s3ForcePathStyle: true,
-});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json(); // Parse JSON body
-    const { fileName, filetype } = body;
+    // Get 'File' Object from FormData
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
 
-    if (!fileName || !filetype) {
+    if (!file) {
       return new Response(JSON.stringify({ error: 'Missing file details' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
+    console.log('File:', { name: file.name, size: file.size, type: file.type });
 
-    // Generate a signed URL for direct upload
-    const params = {
-      Bucket: FILEBASE_BUCKET_NAME,
-      Key: fileName,
-      ContentType: filetype,
-      ACL: 'public-read',
-    };
+    // Upload to Pinata
+    const response = await pinata.upload.file(file);
 
-    const uploadUrl = await s3.getSignedUrlPromise('putObject', params);
-
-    // Filebase stores files on IPFS, so CID is derived from the filename
-    const ipfsCID = `ipfs://${fileName}`;
-
-    return new Response(JSON.stringify({ uploadUrl, ipfsCID }), {
+    return new Response(JSON.stringify(response), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Upload error:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to generate upload URL' }),
+      JSON.stringify({ error: 'Failed to upload to Pinata' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
