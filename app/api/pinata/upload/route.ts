@@ -1,22 +1,24 @@
 import { pinata } from '@/common/environment';
 import { NextRequest } from 'next/server';
+import { PinResponse } from 'pinata-web3';
 
 export async function POST(request: NextRequest) {
   try {
     // Get 'File' Object from FormData
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const files = formData.getAll('files') as File[];
 
-    if (!file) {
+    if (!files || files.length === 0) {
       return new Response(JSON.stringify({ error: 'Missing file details' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
-    console.log('File:', { name: file.name, size: file.size, type: file.type });
 
     // Upload to Pinata
-    const response = await pinata.upload.file(file);
+    let response: PinResponse;
+    response = await pinata.upload.fileArray(files);
+    console.log(response);
 
     return new Response(JSON.stringify(response), {
       status: 200,

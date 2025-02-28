@@ -6,25 +6,26 @@ import axios from 'axios';
 
 export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
-  const [ipfs, setIpfs] = useState<string>('');
-  const [uploadedFileSrc, setUploadedFileSrc] = useState<string>();
+  const [ipfsHash, setIpfsHash] = useState<string[]>([]);
+  const [uploadedFileSrc, setUploadedFileSrc] = useState<string>('');
 
   const handleFileUpload = (files: File[]) => {
-    setFiles(files);
+    setFiles((prevFiles) => [...prevFiles, ...files]);
   };
 
-  const uploadFile = async (file: File) => {
+  const uploadFiles = async (files: File[]) => {
     try {
       const formData = new FormData();
-      formData.append('file', file);
-
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
       const response = await axios.post('/api/pinata/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      setIpfs(response.data.IpfsHash);
+      setIpfsHash(response.data.IpfsHash); // Expecting an array of CIDs
       setFiles([]);
-      console.log('File uploaded successfully!');
+      console.log('Files uploaded successfully!');
     } catch (error) {
       console.error('File upload failed:', error);
     }
@@ -36,24 +37,24 @@ export default function Home() {
       return;
     }
 
-    await uploadFile(files[0]);
+    await uploadFiles(files);
   };
 
   useEffect(() => {
-    if (ipfs) {
-      setUploadedFileSrc(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
+    if (ipfsHash) {
+      setUploadedFileSrc(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
     }
-  }, [ipfs]);
+  }, [ipfsHash]);
 
   return (
     <div className='grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20'>
       <div className='flex-col justify-center flex items-center gap-2'>
-        <h1 className='text-2xl font-black'>IPFS Image Uploader</h1>
+        <h1 className='text-2xl font-black'>IPFS File Uploader</h1>
         <p>
           <span className='brightness-50'>
-            Upload your files to IPFS and receive its CID{' '}
+            Upload multiple files to IPFS and receive their CIDs{' '}
           </span>
-          <br></br>
+          <br />
           <span className='brightness'>* Please reload after an upload</span>
         </p>
       </div>
@@ -65,8 +66,10 @@ export default function Home() {
           onClick={handleButtonClick}
           className='shadow-[0_0_0_3px_#000000_inset] px-6 py-2 bg-transparent border border-black dark:border-white dark:text-white text-black rounded-lg font-bold transform hover:-translate-y-1 transition duration-400'
         >
-          Upload File
+          Upload Files
         </button>
+
+        {/* Display Uploaded Files */}
         {uploadedFileSrc && (
           <div className='flex flex-col items-center gap-2'>
             <img
@@ -74,7 +77,7 @@ export default function Home() {
               alt='Uploaded IPFS File'
               className='lg:max-w-1/2 rounded-lg shadow-lg'
             />
-            <p className='text-sm break-all'>CID: {ipfs}</p>
+            <p className='text-sm break-all'>CID: {ipfsHash}</p>
           </div>
         )}
       </main>
