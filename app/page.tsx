@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { FileUpload } from '@/components/ui/file-upload';
 import axios from 'axios';
+import Image from 'next/image';
 
 export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
@@ -72,7 +73,7 @@ export default function Home() {
         {/* Display Uploaded Files */}
         {uploadedFileSrc && (
           <div className='flex flex-col items-center gap-2'>
-            <img
+            <Image
               src={uploadedFileSrc}
               alt='Uploaded IPFS File'
               className='lg:max-w-1/2 rounded-lg shadow-lg'

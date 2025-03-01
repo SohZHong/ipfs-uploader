@@ -16,9 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Upload to Pinata
-    let response: PinResponse;
-    response = await pinata.upload.fileArray(files);
-    console.log(response);
+    const response = await pinata.upload.fileArray(files);
 
     return new Response(JSON.stringify(response), {
       status: 200,
