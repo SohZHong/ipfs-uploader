@@ -1,6 +1,5 @@
 import { pinata } from '@/common/environment';
 import { NextRequest } from 'next/server';
-import { PinResponse } from 'pinata-web3';
 
 export async function POST(request: NextRequest) {
   try {
