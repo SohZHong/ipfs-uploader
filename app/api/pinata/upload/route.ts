@@ -1,5 +1,6 @@
 import { pinata } from '@/common/environment';
 import { NextRequest } from 'next/server';
+import { PinResponse } from 'pinata-web3';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +16,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Upload to Pinata
-    const response = await pinata.upload.fileArray(files);
+    let response: PinResponse;
+    if (files.length === 1) {
+      response = await pinata.upload.file(files[0]);
+    } else {
+      response = await pinata.upload.fileArray(files);
+    }
 
     return new Response(JSON.stringify(response), {
       status: 200,
